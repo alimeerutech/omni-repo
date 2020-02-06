@@ -1,0 +1,35 @@
+---
+swagger: "2.0"
+info:
+  version: "dev"
+  title: "apigateway-demo"
+basePath: "/prod"
+schemes:
+- "https"
+paths:
+  /python-adam-demo:
+    get:
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "200 response"
+          schema:
+            $ref: "#/definitions/Empty"
+      x-amazon-apigateway-integration:
+        # Dynamically pull down and set URI
+        uri: "http://ab2002ad2463a11eaa87102cc47117f3-4b8f53d76d89382c.elb.us-east-2.amazonaws.com"
+        responses:
+          default:
+            statusCode: "200"
+        passthroughBehavior: "when_no_match"
+        connectionType: "VPC_LINK"
+        # Should use stage variables when possible, connectionId is one
+        connectionId: "sipj2t"
+        #connectionId: "${stageVariables.vpcLinkId}"
+        httpMethod: "GET"
+        type: "http_proxy"
+definitions:
+  Empty:
+    type: "object"
+    title: "Empty Schema"
