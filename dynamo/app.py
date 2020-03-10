@@ -1,11 +1,25 @@
 #!/usr/bin/env python3
 
-from aws_cdk import core
+from aws_cdk import (
+    core,
+    aws_dynamodb
+)
 
-from dynamodb_lambda.dynamodb_lambda_stack import DynamodbLambdaStack
 
+class DynamodbStack(core.Stack):
+
+    def __init__(self, scope: core.Construct, id: str, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
+
+        # create dynamo table
+        demo_table = aws_dynamodb.Table(
+            self, "demo_table",
+            partition_key=aws_dynamodb.Attribute(
+                name="id",
+                type=aws_dynamodb.AttributeType.STRING
+            )
+        )
 
 app = core.App()
-DynamodbLambdaStack(app, "dynamodb-lambda")
-
+DynamodbStack(app, "DynamodbStack")
 app.synth()
