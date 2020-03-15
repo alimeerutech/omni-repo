@@ -12,3 +12,6 @@ phases:
   build:
     commands:
       - echo "DEPLOY PHASE"
+artifacts:
+  files:
+    - '**/*'
