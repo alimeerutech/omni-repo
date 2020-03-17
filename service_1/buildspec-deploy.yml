@@ -9,10 +9,11 @@ phases:
       nodejs: 10
     commands:
       - npm i -g aws-cdk
-      - pip install -r requirements.txt
+      - pip install -r service_1/requirements.txt
   pre_build:
     commands:
-      - cdk diff
+      - echo "Time to deploy"
+      - cd service_1
   build:
     commands:
       - cdk deploy --require-approval never
