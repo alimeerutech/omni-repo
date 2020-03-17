@@ -12,6 +12,7 @@ phases:
       - pip install -r requirements.txt
   pre_build:
     commands:
+      - pushd platform
       - cdk diff
       - cdk synth --no-staging | cfn-lint
   build:
