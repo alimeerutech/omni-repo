@@ -1,53 +1,37 @@
+#!/usr/bin/env python3
+
 from aws_cdk import (
-    aws_lambda as lambda_,
-    aws_kinesis as kinesis,
-    aws_lambda_event_sources as event_sources,
     core,
+    aws_ec2,
+    aws_lambda,
+    aws_kinesis
 )
 
+from os import getenv
 
-class LambdaWithKinesisTrigger(core.Stack):
-    def __init__(self, app: core.App, id: str) -> None:
-        super().__init__(app, id)
 
-        with open("lambda-handler.py", encoding="utf8") as fp:
-            handler_code = fp.read()
+class LambdaOnly(core.Stack):
 
-        # Creates reference to already existing kinesis stream
-        kinesis_stream = kinesis.Stream.from_stream_arn(
-            self, 'KinesisStream',
-            core.Arn.format(
-                core.ArnComponents(
-                    resource='stream',
-                    service='kinesis',
-                    resource_name='my-stream'
-                ),
-                self
-            )
-        )
+    def __init__(self, scope: core.Stack, id: str, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
 
-        lambdaFn = lambda_.Function(
-            self, 'Singleton',
-            handler='index.main',
-            code=lambda_.InlineCode(handler_code),
-            runtime=lambda_.Runtime.PYTHON_3_7,
-            timeout=core.Duration.seconds(300)
-        )
+        # Importing a VPC from the "base" platform stack
+        self.vpc = aws_ec2.Vpc.from_lookup(self, "PlatformVPC", vpc_name="omni-repo-platform/BaseVPC")
         
-        # Update Lambda Permissions To Use Stream
-        kinesis_stream.grant_read(lambdaFn)
-
-        # Create New Kinesis Event Source
-        kinesis_event_source = event_sources.KinesisEventSource(
-            stream=kinesis_stream,
-            starting_position=lambda_.StartingPosition.LATEST,
-            batch_size=1
+        # Lambda function defined here. Using inline code, but realistically would use from_asset as codebase would be much larger :-)
+        # https://docs.aws.amazon.com/cdk/api/latest/python/aws_cdk.aws_lambda/Code.html#aws_cdk.aws_lambda.Code.from_asset
+        self.lambda_function = aws_lambda.Function(
+            self, "Service3LambdaFunction",
+            code=aws_lambda.Code.inline("def lambda_handler(event, context): return {'message': 'Success'}"),
+            handler="index.lambda_handler",
+            runtime=aws_lambda.Runtime.PYTHON_3_7,
+            memory_size=128,
+            timeout=core.Duration.seconds(6),
+            vpc=self.vpc
         )
+    
 
-        # Attach New Event Source To Lambda
-        lambdaFn.add_event_source(kinesis_event_source)
-
-
+_env = core.Environment(account=getenv('CDK_DEFAULT_ACCOUNT'), region=getenv('AWS_DEFAULT_REGION'))
 app = core.App()
-LambdaWithKinesisTrigger(app, "LambdaWithKinesisTrigger")
+LambdaKinesisService(app, "lambda-only-service", env=_env)
 app.synth()

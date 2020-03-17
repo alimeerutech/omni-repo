@@ -1,6 +1,4 @@
-aws-cdk.core
-
-aws-cdk.aws_dynamodb
-
-boto3
-botocore
+aws_cdk.core
+aws_cdk.aws_lambda
+aws_cdk.aws_dynamodb
+cfn-lint
