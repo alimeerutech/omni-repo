@@ -16,4 +16,5 @@ phases:
       - cdk diff
   build:
     commands:
-      - cdk synth --no-staging | cfn-lint
+      - cdk synth --no-staging
+      #- cdk synth --no-staging | cfn-lint

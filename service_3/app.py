@@ -7,23 +7,23 @@ from aws_cdk import (
 
 
 class LambdaCronStack(core.Stack):
-    def __init__(self, app: core.App, id: str) -> None:
-        super().__init__(app, id)
+    
+    def __init__(self, scope: core.Stack, id: str, **kwargs) -> None:
+        super().__init__(scope, id, **kwargs)
 
-        with open("lambda-handler.py", encoding="utf8") as fp:
-            handler_code = fp.read()
-
-        lambdaFn = lambda_.Function(
-            self, "Singleton",
-            code=lambda_.InlineCode(handler_code),
-            handler="index.main",
-            timeout=core.Duration.seconds(300),
-            runtime=lambda_.Runtime.PYTHON_3_7,
+        self.lambda_function = lambda_.Function(
+            self, "Service2LambdaFunction",
+            code=aws_lambda.Code.inline("def lambda_handler(event, context): return {'message': 'Success'}"),
+            handler="index.lambda_handler",
+            runtime=aws_lambda.Runtime.PYTHON_3_7,
+            memory_size=128,
+            timeout=core.Duration.seconds(6),
+            vpc=self.vpc
         )
 
         # Run every day at 6PM UTC
         # See https://docs.aws.amazon.com/lambda/latest/dg/tutorial-scheduled-events-schedule-expressions.html
-        rule = events.Rule(
+        self.rule = events.Rule(
             self, "Rule",
             schedule=events.Schedule.cron(
                 minute='0',
@@ -32,7 +32,8 @@ class LambdaCronStack(core.Stack):
                 week_day='MON-FRI',
                 year='*'),
         )
-        rule.add_target(targets.LambdaFunction(lambdaFn))
+        
+        self.rule.add_target(targets.LambdaFunction(self.lambda_function))
 
 
 app = core.App()
