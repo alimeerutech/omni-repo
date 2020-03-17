@@ -13,7 +13,7 @@ phases:
   pre_build:
     commands:
       - cd service_3
-      - cdk diff
+      - cdk diff || echo "Changes to the stack"
   build:
     commands:
       - cdk synth --no-staging
