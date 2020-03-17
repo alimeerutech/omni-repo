@@ -18,7 +18,6 @@ class LambdaCronStack(core.Stack):
             runtime=lambda_.Runtime.PYTHON_3_7,
             memory_size=128,
             timeout=core.Duration.seconds(6),
-            vpc=self.vpc
         )
 
         # Run every day at 6PM UTC
