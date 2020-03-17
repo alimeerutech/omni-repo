@@ -13,9 +13,9 @@ class LambdaCronStack(core.Stack):
 
         self.lambda_function = lambda_.Function(
             self, "Service2LambdaFunction",
-            code=aws_lambda.Code.inline("def lambda_handler(event, context): return {'message': 'Success'}"),
+            code=lambda_.Code.inline("def lambda_handler(event, context): return {'message': 'Success'}"),
             handler="index.lambda_handler",
-            runtime=aws_lambda.Runtime.PYTHON_3_7,
+            runtime=lambda_.Runtime.PYTHON_3_7,
             memory_size=128,
             timeout=core.Duration.seconds(6),
             vpc=self.vpc
