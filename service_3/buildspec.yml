@@ -2,6 +2,13 @@ version: 0.2
 
 run-as: root
 
+env:
+  variables:
+    APIGW_NAME: "magic-api-gateway-${ENV_NAME}"
+  parameter-store:
+    APIGW_STGNAME: "/${ENV_NAME}/apigw_stage_name"
+    AUTHORIZER_URI: "/${ENV_NAME}/authorizer_function_arn"
+
 phases:
   install:
     runtime-versions:
@@ -12,3 +19,6 @@ phases:
   build:
     commands:
       - echo "DEPLOY PHASE"
+      - echo $AUTHORIZER_URI
+      - echo $APIGW_STGNAME
+      - echo $APIGW_NAME
